@@ -44,7 +44,7 @@ class AppTest {
     @Test
     void testTake4() {
         // BEGIN
-        List<Integer> expected = new ArrayList<>((List.of(1)));
+        List<Integer> expected = new ArrayList<>((List.of()));
         assertThat(App.take(numbers, 0)).isEqualTo(expected);
         // END
     }
