@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{layouts/application.html}">
+
+<head>
+  <title>Show article</title>
+</head>
+<section layout:fragment="content">
+  <!-- BEGIN -->
+  <table class="table">
+    <thead>
+    <th>ID</th>
+    <th>Название</th>
+    </thead>
+    <p th:text="#{article.get("id")}"></p>
+    <p th:text="#{article.get("title")}"></p>
+    <p th:text="#{article.get("body")}"></p>
+
+  </table>
+  <!-- END -->
+</section>
