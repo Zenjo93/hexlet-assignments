@@ -21,6 +21,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 
+import static nz.net.ultraq.thymeleaf.layoutdialect.models.extensions.IModelExtensions.findAll;
 
 
 public class ArticlesServlet extends HttpServlet {
@@ -69,17 +70,13 @@ public class ArticlesServlet extends HttpServlet {
 
         // BEGIN
         List<Map<String, String>> articles = new ArrayList<>();
-        String key = request.getParameter("key");
-        int offset;
+
+        int page = request.getParameter("page") != null ? Integer.parseInt(request.getParameter("page")) : 1;
+
+        int offset = page == 1 ? 0 : page + 10;
 
 
-        if (key != null) {
-            offset = Integer.parseInt(request.getParameter("key"));
-        } else{
-            offset = 0;
-        }
-
-        String query = "SELECT id, title, body  FROM articles LIMIT 10 OFFSET ?";
+        String query = "SELECT id, title, body FROM articles ORDER BY id LIMIT 10 OFFSET ?";
 
         try {
             // Используем PreparedStatement
@@ -110,6 +107,7 @@ public class ArticlesServlet extends HttpServlet {
             return;
         }
 
+        request.setAttribute("page", page);
         request.setAttribute("articles", articles);
 
         // END
@@ -124,31 +122,31 @@ public class ArticlesServlet extends HttpServlet {
         Connection connection = (Connection) context.getAttribute("dbConnection");
 
         // BEGIN
-        int id = Integer.parseInt(getId(request));
-        String query = "SELECT id, title, body FROM articles WHERE id = ?";
 
-        Map<String, String> article = new HashMap<>();
+        String pathInfo = request.getPathInfo();
 
+        String[] pathParts = pathInfo.split("/");
+        int articleid =  Integer.parseInt(ArrayUtils.get(pathParts, 1, null));
+
+
+        String query = "SELECT title, body FROM articles WHERE id = ?";
+
+        Map<String, String> article;
         try {
-            // Используем PreparedStatement
-            // Он позволяет подставить в запрос значения вместо знака ?
             PreparedStatement statement = connection.prepareStatement(query);
-            // Указываем номер позиции в запросе (номер начинается с 1) и значение,
-            // которое будет подставлено
-            statement.setInt(1, id);
-            // Выполняем запрос
-            // Результат выполнения представлен объектом ResultSet
+            statement.setInt(1, articleid);
             ResultSet rs = statement.executeQuery();
-            article.put("title", rs.getString("title"));
-            article.put("body", rs.getString("body"));
+            rs.first();
+            article = Map.of("title", rs.getString("title"), "body", rs.getString("body"));
 
         } catch (SQLException e) {
             // Если произошла ошибка, устанавливаем код ответа 500
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
 
         request.setAttribute("article", article);
+
         // END
         TemplateEngineUtil.render("articles/show.html", request, response);
     }

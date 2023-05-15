@@ -7,15 +7,13 @@ layout:decorate="~{layouts/application.html}">
 </head>
 <section layout:fragment="content">
   <!-- BEGIN -->
-  <table class="table">
-    <thead>
-    <th>ID</th>
-    <th>Название</th>
-    </thead>
-    <p th:text="#{article.get("id")}"></p>
-    <p th:text="#{article.get("title")}"></p>
-    <p th:text="#{article.get("body")}"></p>
 
-  </table>
+  <!-- Get the title value -->
+  <h1 th:text="${article['title']}">Title</h1>
+
+  <!-- Get the body value -->
+  <p th:text="${article['body']}">Body</p>
+
   <!-- END -->
 </section>
+
